@@ -1,0 +1,11 @@
+<resources>
+
+<style name="AppTheme" parent="@android:style/Theme.Light">
+    <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+</style>
+
+
+<style name="MyTheme" parent="@android:style/Theme.Light">
+    <!-- Any customizations for your app running on devices with Theme.Holo here -->
+</style>
+</resources>
