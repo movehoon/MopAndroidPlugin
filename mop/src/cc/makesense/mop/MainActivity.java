@@ -12,6 +12,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 public class MainActivity extends UnityPlayerActivity {
 
@@ -171,7 +174,7 @@ public class MainActivity extends UnityPlayerActivity {
         super.onCreate(savedInstanceState);
         Log.d (TAG, "onCreate");
         UnityPlayer.UnitySendMessage(UnityObjectName, "Echo", "onCreate");
-        
+
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBTManager == null)
             mBTManager = new BTManager(this, mHandler);
