@@ -117,13 +117,16 @@ public class MainActivity extends UnityPlayerActivity {
                     Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
                 switch (msg.arg1) {
                 case BTManager.STATE_CONNECTED:
+                    UnityPlayer.UnitySendMessage(UnityObjectName, "BluetoothConnectState", "BT_STATE_CONNECTED");
                     Log.d (TAG, "STATE_CONNECTED");
                     break;
                 case BTManager.STATE_CONNECTING:
+                    UnityPlayer.UnitySendMessage(UnityObjectName, "BluetoothConnectState", "BT_STATE_CONNECTING");
                     Log.d (TAG, "STATE_CONNECTING");
                     break;
                 case BTManager.STATE_LISTEN:
                 case BTManager.STATE_NONE:
+                    UnityPlayer.UnitySendMessage(UnityObjectName, "BluetoothConnectState", "BT_STATE_NOTCONNECTED");
                     Log.d (TAG, "STATE_NOTCONNECTED");
                     break;
                 }
