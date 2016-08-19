@@ -1,6 +1,7 @@
 package cc.makesense.mop;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import com.unity3d.player.UnityPlayer;
@@ -8,6 +9,10 @@ import com.unity3d.player.UnityPlayerActivity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.hardware.Camera;
+import android.hardware.Camera.Face;
+import android.hardware.Camera.FaceDetectionListener;
+import android.media.FaceDetector;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -30,6 +35,10 @@ public class MainActivity extends UnityPlayerActivity {
     public static final String UnityObjectName = "AndroidManager";
     private BTManager mBTManager = null;
 
+	private Camera mCamera;
+	// Holds the Face Detection result:
+    private Camera.Face[] mFaces;	
+    
     // Start Region @ Function about BT communication
     public void SendMessage(String hexMessage) {
         // Check that we're actually connected before trying anything
@@ -107,6 +116,50 @@ public class MainActivity extends UnityPlayerActivity {
 	    }
     }
     
+    public void EnableFaceDetect () {
+//        Log.d(TAG, "[EnableFaceDetect]");
+    	mCamera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
+    	mCamera.setFaceDetectionListener(faceDetectionListener);
+        
+    	// Get the supported preview sizes:
+        Camera.Parameters parameters = mCamera.getParameters();
+        List<Camera.Size> previewSizes = parameters.getSupportedPreviewSizes();
+        Camera.Size previewSize = previewSizes.get(0);
+        // And set them:
+        parameters.setPreviewSize(previewSize.width, previewSize.height);
+        mCamera.setParameters(parameters);
+        mCamera.startPreview();
+
+        mCamera.startFaceDetection();
+    }
+    
+    public void DisableFaceDetect () {
+    	mCamera.stopFaceDetection();
+    	mCamera.stopPreview();
+
+    	mCamera.setPreviewCallback(null);
+        mCamera.setFaceDetectionListener(null);
+        mCamera.setErrorCallback(null);
+        mCamera.release();
+        mCamera = null;
+    }
+    
+    /**
+     * Sets the faces for the overlay view, so it can be updated
+     * and the face overlays will be drawn again.
+     */
+    private FaceDetectionListener faceDetectionListener = new FaceDetectionListener() {
+		@Override
+		public void onFaceDetection(Face[] faces, Camera camera) {
+//            Log.d (TAG, "[onFaceDetection Number of Faces:" + faces.length);
+            if (faces.length > 0) {
+            	String pos = Integer.toString(faces[0].rect.centerX()) + "," + Integer.toString(faces[0].rect.centerY());
+                UnityPlayer.UnitySendMessage(UnityObjectName, "FacePos",  pos);
+//            	Log.d (TAG, "[onFaceDetection] x: " + faces[0].rect.centerX() + ", y: " + faces[0].rect.centerY());
+            }
+		}
+    };
+    
     // The Handler that gets information back from the BluetoothChatService
     private final Handler mHandler = new Handler() {
         @Override
@@ -170,8 +223,7 @@ public class MainActivity extends UnityPlayerActivity {
         return new String(hexChars);
     }
 
-    // End Region
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -181,7 +233,10 @@ public class MainActivity extends UnityPlayerActivity {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBTManager == null)
             mBTManager = new BTManager(this, mHandler);
-}
+ 
+        // Create an instance of Camera
+        EnableFaceDetect ();
+    }
     
     @Override
 	protected void onPause() {
