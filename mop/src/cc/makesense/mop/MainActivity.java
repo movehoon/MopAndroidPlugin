@@ -130,7 +130,12 @@ public class MainActivity extends UnityPlayerActivity {
         mCamera.setParameters(parameters);
         mCamera.startPreview();
 
-        mCamera.startFaceDetection();
+        try {
+        	mCamera.startFaceDetection();
+        }
+        catch (Exception ex) {
+        	Log.d (TAG, ex.toString ());
+        }
     }
     
     public void DisableFaceDetect () {
@@ -141,7 +146,6 @@ public class MainActivity extends UnityPlayerActivity {
         mCamera.setFaceDetectionListener(null);
         mCamera.setErrorCallback(null);
         mCamera.release();
-        mCamera = null;
     }
     
     /**
@@ -196,7 +200,7 @@ public class MainActivity extends UnityPlayerActivity {
                 }
 
                 int writeValue = (int) ((writeData[4] << 8) | (writeData[2]));
-                Log.d (TAG, "Write:" + Integer.toString(writeValue));
+//                Log.d (TAG, "Write:" + Integer.toString(writeValue));
                 break;
             case MESSAGE_READ:
                 int len = (int) msg.arg1;
@@ -235,12 +239,13 @@ public class MainActivity extends UnityPlayerActivity {
             mBTManager = new BTManager(this, mHandler);
  
         // Create an instance of Camera
-        EnableFaceDetect ();
     }
     
     @Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
+    	DisableFaceDetect ();
+    	
         Log.d (TAG, "onPause");
 		super.onPause();
 	}
@@ -248,6 +253,8 @@ public class MainActivity extends UnityPlayerActivity {
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
+        EnableFaceDetect ();
+
         Log.d (TAG, "onResume");
 		super.onResume();
 	}
